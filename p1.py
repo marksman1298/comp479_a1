@@ -1,17 +1,28 @@
-import nltk, os, re
+import nltk, os, re, json
 from nltk import word_tokenize
-from nltk.corpus import reuters
-from nltk.stem import porter
+# from nltk.corpus import reuters
+# from nltk.stem import porter
 from nltk.stem.porter import PorterStemmer
 
-def splitIntoArticles(dir): #read all files in directory, put everything into one string, split into list of articles 
+# menu with loop?
+# save outputs to file?
+
+def splitIntoArticles(dir, specificFile=""): #read all files in directory, put everything into one string, split into list of articles 
     data = ""
-    for filename in os.listdir(dir):
-        if filename.endswith(".sgm"):
-            filepath = dir + "/" + filename
-            with open(filepath, "r") as f:
-                data += f.read()
-    return data.split("</REUTERS>")
+    listOfFiles = os.listdir(dir)
+    if specificFile in listOfFiles and specificFile.endswith(".sgm"):
+        filepath = dir + "/" + specificFile
+        with open(filepath, "r") as f:
+            data = f.read()
+        # return makeDict(data.split("</REUTERS>"))
+    # for filename in listOfFiles:
+    #     if filename.endswith(".sgm"):
+    #         filepath = dir + "/" + filename
+    #         with open(filepath, "r") as f:
+    #             data += f.read()
+    # return makeDict(data.split("</REUTERS>"))
+
+    
     #last article is empty :)
 
 def makeDict(listOfArticles): #want to get all newids of articles, then add them to a list, then combine both lists into dictionary with key new id : value article
@@ -24,9 +35,20 @@ def makeDict(listOfArticles): #want to get all newids of articles, then add them
             if newId is not None:
                 ids.append(newId.group(0))
     articles = {ids[i]: listOfArticles[i] for i in range(len(ids))}            
-    return articles
+    return extractText(articles)
             
+def extractText(articles):
+    for key in articles:
+        startText = articles[key].find("<TEXT>")
+        endText = articles[key].find("</TEXT>")
+        if startText != -1 and endText != -1:
+            articles[key] = articles[key][startText:endText+7]
+    with open("part1_reut2-000", "w") as outfile:
+        json.dump(articles, outfile)
+    return articles
 
+        
+#remove
 def cleanArticles(articles): #remove all tags and extra whitespace, maybe tokenize at same time?
     for key in articles:
         articles[key] = re.sub("<(.*?)>","" , articles[key])
@@ -36,9 +58,12 @@ def cleanArticles(articles): #remove all tags and extra whitespace, maybe tokeni
     return articles
         
 
-def tokenize(articles): #tokenize 
+def tokenize(articles): #tokenize and inverse
     for key in articles:
         articles[key] = word_tokenize(articles[key])
+    # inv_articles = {article: k for k, article in articles.items()}
+    with open("part2", "w") as outfile:
+        json.dump(articles, outfile)
     return articles
 
 def toLowerCase(articles): #lower case all values in the strings
@@ -63,12 +88,15 @@ def removeStopWords(articles):
     # for keys in articles:
     #     articles[keys] = list(map(list(filter((listWords).__ne__), articles[keys])), listWords)
     # return articles
+
+
 articles = [] 
 
 
-articles = splitIntoArticles(dir)
+articles = splitIntoArticles(dir, "reut2-000.sgm")
+#articles = tokenize(articles)
 # print(len(articles))
-articles = makeDict(articles)
+#articles = makeDict(articles)
 
 # print("Start first\n " + articles[0] + "\n end first")
 # print("Start last\n " + articles[21578] + "\n end last")
@@ -79,5 +107,5 @@ articles = makeDict(articles)
 #articles = porterStemmer(articles)
 #print("Start first\n ", articles["2"] , "\n end first")
 
-articles = removeStopWords(articles)
-print(articles[2])
+# articles = removeStopWords(articles)
+# print(articles[2])
