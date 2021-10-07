@@ -1,11 +1,7 @@
-import nltk, os, re, json
+import os, re, json
 from nltk import word_tokenize
-# from nltk.corpus import reuters
-# from nltk.stem import porter
 from nltk.stem.porter import PorterStemmer
 
-# menu with loop?
-# save outputs to file?
 
 def splitIntoArticles(dir, specificFile=""): #read all files in directory, put everything into one string, split into list of articles 
     data = ""
@@ -23,7 +19,6 @@ def splitIntoArticles(dir, specificFile=""): #read all files in directory, put e
     return makeDict(data.split("</REUTERS>"))
 
     
-    #last article is empty :)
 
 def makeDict(listOfArticles): #want to get all newids of articles, then add them to a list, then combine both lists into dictionary with key new id : value article
     articles = {}
@@ -37,7 +32,7 @@ def makeDict(listOfArticles): #want to get all newids of articles, then add them
     articles = {ids[i]: listOfArticles[i] for i in range(len(ids))}            
     return extractText(articles)
             
-def extractText(articles):
+def extractText(articles): #get all information between the text tags for each article
     for key in articles:
         startText = articles[key].find("<TEXT>")
         endText = articles[key].find("</TEXT>")
@@ -46,22 +41,13 @@ def extractText(articles):
     with open("part1_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
-
-        
-#remove
-def cleanArticles(articles): #remove all tags and extra whitespace, maybe tokenize at same time?
-    for key in articles:
-        articles[key] = re.sub("<(.*?)>","" , articles[key])
-        articles[key] = re.sub("&#(.*?);", "", articles[key])
-        articles[key] = re.sub("\n\s*\n", "\n", articles[key])
-        articles[key] = word_tokenize(articles[key])
-    return articles
-        
+     
 
 def tokenize(articles): #tokenize and inverse
     for key in articles:
+        articles[key] = re.sub("<(.*?)>","" , articles[key])
+        articles[key] = re.sub("&#(.*?);", "", articles[key])
         articles[key] = word_tokenize(articles[key])
-    # inv_articles = {article: k for k, article in articles.items()}
     with open("part2_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
@@ -80,24 +66,18 @@ def porterStemmer(articles):
     with open("part4_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
-#
-dir = r'C:\Users\marks\OneDrive\Desktop\Fall-2021\COMP 479\reuters-21578'
 
 def removeStopWords(articles):
     words = input("Enter stop words separated by spaces: ")
     listWords = words.split(" ")
-    #list compressions?
-    #articles2 = [word for word in articles if word not in listWords]
     for keys in articles:
-        for token in articles[keys]:
+        for token in reversed(articles[keys]):
             if token in listWords:
                 articles[keys].remove(token)
     with open("part5_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
-    # for keys in articles:
-    #     articles[keys] = list(map(list(filter((listWords).__ne__), articles[keys])), listWords)
-    # return articles
+    
 
 
 
@@ -111,17 +91,4 @@ def pipeline():
     articles = removeStopWords(articles)
 
 pipeline()
-# print(len(articles))
-#articles = makeDict(articles)
 
-# print("Start first\n " + articles[0] + "\n end first")
-# print("Start last\n " + articles[21578] + "\n end last")
-
-#articles = cleanArticles(articles)
-#articles = tokenize(articles)
-#articles = toLowerCase(articles)
-#articles = porterStemmer(articles)
-#print("Start first\n ", articles["2"] , "\n end first")
-
-
-# print(articles[2])
