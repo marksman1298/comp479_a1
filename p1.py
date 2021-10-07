@@ -14,13 +14,13 @@ def splitIntoArticles(dir, specificFile=""): #read all files in directory, put e
         filepath = dir + "/" + specificFile
         with open(filepath, "r") as f:
             data = f.read()
-        # return makeDict(data.split("</REUTERS>"))
-    # for filename in listOfFiles:
-    #     if filename.endswith(".sgm"):
-    #         filepath = dir + "/" + filename
-    #         with open(filepath, "r") as f:
-    #             data += f.read()
-    # return makeDict(data.split("</REUTERS>"))
+        return makeDict(data.split("</REUTERS>"))
+    for filename in listOfFiles:
+        if filename.endswith(".sgm"):
+            filepath = dir + "/" + filename
+            with open(filepath, "r") as f:
+                data += f.read()
+    return makeDict(data.split("</REUTERS>"))
 
     
     #last article is empty :)
@@ -43,7 +43,7 @@ def extractText(articles):
         endText = articles[key].find("</TEXT>")
         if startText != -1 and endText != -1:
             articles[key] = articles[key][startText:endText+7]
-    with open("part1_reut2-000", "w") as outfile:
+    with open("part1_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
 
@@ -62,39 +62,55 @@ def tokenize(articles): #tokenize and inverse
     for key in articles:
         articles[key] = word_tokenize(articles[key])
     # inv_articles = {article: k for k, article in articles.items()}
-    with open("part2", "w") as outfile:
+    with open("part2_reut2-004.txt", "w") as outfile:
         json.dump(articles, outfile)
     return articles
 
 def toLowerCase(articles): #lower case all values in the strings
     for keys in articles:
         articles[keys]=list(map(str.lower, articles[keys]))
+    with open("part3_reut2-004.txt", "w") as outfile:
+        json.dump(articles, outfile)
     return articles
 
 def porterStemmer(articles):
     ps = PorterStemmer()
     for keys in articles:
         articles[keys] = list(map(ps.stem, articles[keys]))
+    with open("part4_reut2-004.txt", "w") as outfile:
+        json.dump(articles, outfile)
     return articles
-#dir = input("Enter the directory: ")
+#
 dir = r'C:\Users\marks\OneDrive\Desktop\Fall-2021\COMP 479\reuters-21578'
 
 def removeStopWords(articles):
     words = input("Enter stop words separated by spaces: ")
     listWords = words.split(" ")
     #list compressions?
-    articles2 = [word for word in articles if word not in listWords]
-    return articles2
+    #articles2 = [word for word in articles if word not in listWords]
+    for keys in articles:
+        for token in articles[keys]:
+            if token in listWords:
+                articles[keys].remove(token)
+    with open("part5_reut2-004.txt", "w") as outfile:
+        json.dump(articles, outfile)
+    return articles
     # for keys in articles:
     #     articles[keys] = list(map(list(filter((listWords).__ne__), articles[keys])), listWords)
     # return articles
 
 
-articles = [] 
 
+def pipeline():
+    dir = input("Enter the directory: ")
+    articles = [] 
+    articles = splitIntoArticles(dir, "reut2-004.sgm")
+    articles = tokenize(articles)
+    articles = toLowerCase(articles)
+    articles = porterStemmer(articles)
+    articles = removeStopWords(articles)
 
-articles = splitIntoArticles(dir, "reut2-000.sgm")
-#articles = tokenize(articles)
+pipeline()
 # print(len(articles))
 #articles = makeDict(articles)
 
@@ -107,5 +123,5 @@ articles = splitIntoArticles(dir, "reut2-000.sgm")
 #articles = porterStemmer(articles)
 #print("Start first\n ", articles["2"] , "\n end first")
 
-# articles = removeStopWords(articles)
+
 # print(articles[2])
