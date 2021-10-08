@@ -1,9 +1,9 @@
 import os, re, json
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
+from typing import List, Dict
 
-
-def splitIntoArticles(dir): #read all files in directory, put everything into one string, split into list of articles 
+def splitIntoArticles() -> List[str]: #read all files in directory, put everything into one string, split into list of articles 
     data = ""
     try:
         dir = input("Enter the directory: ")
@@ -26,7 +26,7 @@ def splitIntoArticles(dir): #read all files in directory, put everything into on
 
     
 
-def makeDict(listOfArticles): #want to get all newids of articles, then add them to a list, then combine both lists into dictionary with key new id : value article
+def makeDict(listOfArticles: List) -> Dict: #want to get all newids of articles, then add them to a list, then combine both lists into dictionary with key new id : value article
     articles = {}
     ids = []
     specificArticle = input("Enter desired articles separated by space: ")
@@ -46,12 +46,12 @@ def makeDict(listOfArticles): #want to get all newids of articles, then add them
                 tableArticles[articleId] = articles[articleId]
             except Exception as e:
                 print("Not a valid key", e)
-                return
+                return extractText(articles)
         return extractText(tableArticles)
        
     return extractText(articles)
             
-def extractText(articles): #get all information between the text tags for each article
+def extractText(articles: Dict) -> Dict: #get all information between the text tags for each article
     for key in articles:
         startText = articles[key].find("<TEXT>")
         endText = articles[key].find("</TEXT>")
@@ -61,7 +61,7 @@ def extractText(articles): #get all information between the text tags for each a
         json.dump(articles, outfile)
     return articles
      
-def tokenize(articles): #tokenize 
+def tokenize(articles: Dict)-> Dict: #tokenize 
     if not articles:
         print("Dictionary is empty")
         return
@@ -71,7 +71,7 @@ def tokenize(articles): #tokenize
         json.dump(articles, outfile)
     return articles
 
-def toLowerCase(articles): #lower case all values in the strings
+def toLowerCase(articles: Dict)-> Dict: #lower case all values in the strings
     if not articles:
         print("Dictionary is empty")
         return
@@ -81,7 +81,7 @@ def toLowerCase(articles): #lower case all values in the strings
         json.dump(articles, outfile)
     return articles
 
-def porterStemmer(articles):
+def porterStemmer(articles: Dict)-> Dict:
     if not articles:
         print("Dictionary is empty")
         return
@@ -92,7 +92,7 @@ def porterStemmer(articles):
         json.dump(articles, outfile)
     return articles
 
-def removeStopWords(articles):
+def removeStopWords(articles: Dict)-> Dict:
     if not articles:
         print("Dictionary is empty")
         return
@@ -111,7 +111,7 @@ def removeStopWords(articles):
 
 def pipeline():
     articles = [] 
-    articles = splitIntoArticles(dir) 
+    articles = splitIntoArticles() 
     articles = tokenize(articles)
     articles = toLowerCase(articles)
     articles = porterStemmer(articles)
