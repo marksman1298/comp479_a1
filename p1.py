@@ -1,5 +1,5 @@
 import os, re, json
-from nltk import word_tokenize
+from nltk import word_tokenize, stopwords
 from nltk.stem.porter import PorterStemmer
 from typing import List, Dict
 
@@ -92,15 +92,13 @@ def porterStemmer(articles: Dict)-> Dict:
         json.dump(articles, outfile)
     return articles
 
-def removeStopWords(articles: Dict)-> Dict:
+def removeStopWords(articles: Dict, stopWords: List)-> Dict:
     if not articles:
         print("Dictionary is empty")
         return
-    words = input("Enter stop words separated by spaces: ")
-    listWords = words.split(" ")
     for keys in articles:
         for token in reversed(articles[keys]):
-            if token in listWords:
+            if token in stopWords:
                 articles[keys].remove(token)
     with open("part5_article5.txt", "w") as outfile:
         json.dump(articles, outfile)
@@ -115,7 +113,9 @@ def pipeline():
     articles = tokenize(articles)
     articles = toLowerCase(articles)
     articles = porterStemmer(articles)
-    articles = removeStopWords(articles)
+    words = input("Enter stop words separated by spaces: ")
+    stopWords = words.split(" ")
+    articles = removeStopWords(articles, stopWords)
 
 pipeline()
 
