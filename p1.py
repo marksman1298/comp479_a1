@@ -1,5 +1,5 @@
 import os, re, json
-from nltk import word_tokenize, stopwords
+from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
 from typing import List, Dict
 
@@ -92,7 +92,7 @@ def porterStemmer(articles: Dict)-> Dict:
         json.dump(articles, outfile)
     return articles
 
-def removeStopWords(articles: Dict, stopWords: List)-> Dict:
+def removeStopWords(articles: Dict, stopWords:List)-> Dict:
     if not articles:
         print("Dictionary is empty")
         return
